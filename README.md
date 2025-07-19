@@ -55,3 +55,4 @@ npm run build
 ## Medical Disclaimer
 
 This calculator is for educational and informational purposes only. Results should be interpreted by qualified healthcare professionals in clinical context.
+# Trigger rebuild

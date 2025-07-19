@@ -1,0 +1,6 @@
+/* Additional styles for the App */
+@media print {
+  .no-print {
+    display: none;
+  }
+}

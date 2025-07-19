@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
 import { AlertCircle, FileText, Printer, Calculator } from 'lucide-react';
+import './App.css';
 
 // Context for future scalability
 const CalculatorContext = createContext();
@@ -21,12 +22,12 @@ const FORMULAS = {
 
 // CKD Staging based on KDIGO 2024
 const CKD_STAGES = {
-  G1: { min: 90, label: 'Normal or high', color: 'bg-green-500', risk: 'Low' },
-  G2: { min: 60, max: 89, label: 'Mildly decreased', color: 'bg-green-400', risk: 'Low' },
-  G3a: { min: 45, max: 59, label: 'Mild to moderately decreased', color: 'bg-yellow-500', risk: 'Moderate' },
-  G3b: { min: 30, max: 44, label: 'Moderate to severely decreased', color: 'bg-orange-500', risk: 'High' },
-  G4: { min: 15, max: 29, label: 'Severely decreased', color: 'bg-red-500', risk: 'Very High' },
-  G5: { max: 14, label: 'Kidney failure', color: 'bg-red-700', risk: 'Very High' }
+  G1: { min: 90, label: 'Normal or high', color: '#10b981', risk: 'Low' },
+  G2: { min: 60, max: 89, label: 'Mildly decreased', color: '#34d399', risk: 'Low' },
+  G3a: { min: 45, max: 59, label: 'Mild to moderately decreased', color: '#eab308', risk: 'Moderate' },
+  G3b: { min: 30, max: 44, label: 'Moderate to severely decreased', color: '#f97316', risk: 'High' },
+  G4: { min: 15, max: 29, label: 'Severely decreased', color: '#ef4444', risk: 'Very High' },
+  G5: { max: 14, label: 'Kidney failure', color: '#b91c1c', risk: 'Very High' }
 };
 
 // Validation schemas
@@ -82,26 +83,45 @@ const getCKDStage = (eGFR) => {
 
 // Input component with validation
 const ValidatedInput = ({ label, value, onChange, validation, error, type = 'text', unit, onUnitChange, placeholder, required = true }) => {
+  const inputStyle = {
+    flex: 1,
+    padding: '8px 12px',
+    border: `1px solid ${error ? '#ef4444' : '#d1d5db'}`,
+    borderRadius: '6px',
+    fontSize: '16px',
+    outline: 'none',
+    transition: 'border-color 0.2s'
+  };
+
+  const selectStyle = {
+    padding: '8px 12px',
+    border: '1px solid #d1d5db',
+    borderRadius: '6px',
+    fontSize: '16px',
+    outline: 'none',
+    cursor: 'pointer'
+  };
+
   return (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
+    <div style={{ marginBottom: '16px' }}>
+      <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
+        {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
       </label>
-      <div className="flex gap-2">
+      <div style={{ display: 'flex', gap: '8px' }}>
         <input
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            error ? 'border-red-500' : 'border-gray-300'
-          }`}
+          style={inputStyle}
           placeholder={placeholder}
+          onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+          onBlur={(e) => e.target.style.borderColor = error ? '#ef4444' : '#d1d5db'}
         />
         {unit && (
           <select
             value={unit}
             onChange={(e) => onUnitChange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={selectStyle}
           >
             <option value="mg/dL">mg/dL</option>
             <option value="µmol/L">µmol/L</option>
@@ -109,7 +129,7 @@ const ValidatedInput = ({ label, value, onChange, validation, error, type = 'tex
         )}
       </div>
       {error && (
-        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+        <p style={{ marginTop: '4px', fontSize: '14px', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '4px' }}>
           <AlertCircle size={14} />
           {error}
         </p>
@@ -125,42 +145,58 @@ const ResultsDisplay = ({ result, formula }) => {
   const stage = getCKDStage(result.eGFR);
   
   return (
-    <div className="mt-6 p-6 bg-gray-50 rounded-lg">
-      <h3 className="text-lg font-semibold mb-4">Results</h3>
+    <div style={{ 
+      marginTop: '24px', 
+      padding: '24px', 
+      backgroundColor: '#f9fafb', 
+      borderRadius: '8px',
+      border: '1px solid #e5e7eb'
+    }}>
+      <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>Results</h3>
       
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-600">eGFR</span>
-          <span className="text-2xl font-bold">{result.eGFR} mL/min/1.73 m²</span>
+      <div style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <span style={{ fontSize: '14px', color: '#6b7280' }}>eGFR</span>
+          <span style={{ fontSize: '24px', fontWeight: 'bold' }}>{result.eGFR} mL/min/1.73 m²</span>
         </div>
         
-        <div className={`h-2 rounded-full ${stage.color}`}></div>
+        <div style={{ 
+          height: '8px', 
+          borderRadius: '9999px', 
+          backgroundColor: stage.color,
+          transition: 'background-color 0.3s'
+        }}></div>
       </div>
       
-      <div className="grid grid-cols-2 gap-4 text-sm">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '14px' }}>
         <div>
-          <span className="text-gray-600">Stage:</span>
-          <span className="font-medium ml-2">{stage.stage}</span>
+          <span style={{ color: '#6b7280' }}>Stage:</span>
+          <span style={{ fontWeight: '500', marginLeft: '8px' }}>{stage.stage}</span>
         </div>
         <div>
-          <span className="text-gray-600">Description:</span>
-          <span className="font-medium ml-2">{stage.label}</span>
+          <span style={{ color: '#6b7280' }}>Description:</span>
+          <span style={{ fontWeight: '500', marginLeft: '8px' }}>{stage.label}</span>
         </div>
         <div>
-          <span className="text-gray-600">Risk Level:</span>
-          <span className="font-medium ml-2">{stage.risk}</span>
+          <span style={{ color: '#6b7280' }}>Risk Level:</span>
+          <span style={{ fontWeight: '500', marginLeft: '8px' }}>{stage.risk}</span>
         </div>
         <div>
-          <span className="text-gray-600">Formula:</span>
-          <span className="font-medium ml-2">{formula}</span>
+          <span style={{ color: '#6b7280' }}>Formula:</span>
+          <span style={{ fontWeight: '500', marginLeft: '8px' }}>{formula}</span>
         </div>
       </div>
       
-      <div className="mt-4 p-3 bg-blue-50 rounded text-sm">
-        <p className="text-blue-800">
-          <strong>Note:</strong> This result should be interpreted in clinical context. 
-          CKD diagnosis requires abnormalities present for >3 months.
-        </p>
+      <div style={{ 
+        marginTop: '16px', 
+        padding: '12px', 
+        backgroundColor: '#dbeafe', 
+        borderRadius: '6px',
+        fontSize: '14px',
+        color: '#1e40af'
+      }}>
+        <strong>Note:</strong> This result should be interpreted in clinical context. 
+        CKD diagnosis requires abnormalities present for >3 months.
       </div>
     </div>
   );
@@ -262,15 +298,38 @@ const EGFRCalculator = () => {
     window.print();
   };
   
+  const buttonStyle = {
+    padding: '8px 16px',
+    borderRadius: '6px',
+    fontWeight: '500',
+    fontSize: '16px',
+    cursor: 'pointer',
+    border: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    transition: 'all 0.2s'
+  };
+  
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">eGFR Calculator</h1>
-          <p className="text-gray-600">Calculate estimated Glomerular Filtration Rate using KDIGO 2024 guidelines</p>
+    <div style={{ maxWidth: '672px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ 
+        backgroundColor: 'white', 
+        borderRadius: '8px', 
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        padding: '24px'
+      }}>
+        <div style={{ marginBottom: '24px' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>
+            eGFR Calculator
+          </h1>
+          <p style={{ color: '#6b7280' }}>
+            Calculate estimated Glomerular Filtration Rate using KDIGO 2024 guidelines
+          </p>
         </div>
         
-        <div className="space-y-4">
+        <div>
           <ValidatedInput
             label="Age"
             value={formData.age}
@@ -280,30 +339,30 @@ const EGFRCalculator = () => {
             placeholder="Enter age in years"
           />
           
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Sex <span className="text-red-500">*</span>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
+              Sex <span style={{ color: '#ef4444' }}>*</span>
             </label>
-            <div className="flex gap-4">
-              <label className="flex items-center">
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                 <input
                   type="radio"
                   name="sex"
                   value="male"
                   checked={formData.sex === 'male'}
                   onChange={(e) => handleInputChange('sex', e.target.value)}
-                  className="mr-2"
+                  style={{ marginRight: '8px' }}
                 />
                 Male
               </label>
-              <label className="flex items-center">
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                 <input
                   type="radio"
                   name="sex"
                   value="female"
                   checked={formData.sex === 'female'}
                   onChange={(e) => handleInputChange('sex', e.target.value)}
-                  className="mr-2"
+                  style={{ marginRight: '8px' }}
                 />
                 Female
               </label>
@@ -332,15 +391,19 @@ const EGFRCalculator = () => {
             />
           )}
           
-          <div className="flex gap-3 mt-6">
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
             <button
               onClick={calculate}
               disabled={!isFormValid()}
-              className={`flex-1 py-2 px-4 rounded-md font-medium flex items-center justify-center gap-2 ${
-                isFormValid() 
-                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+              style={{
+                ...buttonStyle,
+                flex: 1,
+                backgroundColor: isFormValid() ? '#2563eb' : '#d1d5db',
+                color: isFormValid() ? 'white' : '#6b7280',
+                cursor: isFormValid() ? 'pointer' : 'not-allowed'
+              }}
+              onMouseEnter={(e) => isFormValid() && (e.target.style.backgroundColor = '#1d4ed8')}
+              onMouseLeave={(e) => isFormValid() && (e.target.style.backgroundColor = '#2563eb')}
             >
               <Calculator size={20} />
               Calculate eGFR
@@ -348,7 +411,14 @@ const EGFRCalculator = () => {
             
             <button
               onClick={reset}
-              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+              style={{
+                ...buttonStyle,
+                backgroundColor: 'white',
+                color: '#374151',
+                border: '1px solid #d1d5db'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#f9fafb'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
             >
               Reset
             </button>
@@ -356,7 +426,14 @@ const EGFRCalculator = () => {
             {result && (
               <button
                 onClick={handlePrint}
-                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2"
+                style={{
+                  ...buttonStyle,
+                  backgroundColor: 'white',
+                  color: '#374151',
+                  border: '1px solid #d1d5db'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#f9fafb'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
               >
                 <Printer size={20} />
                 Print
@@ -368,9 +445,16 @@ const EGFRCalculator = () => {
         <ResultsDisplay result={result} formula={formula} />
         
         {/* Future module placeholders */}
-        <div className="mt-8 p-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 text-sm">
-          <p className="font-medium mb-2">Future Modules (In Development):</p>
-          <ul className="list-disc list-inside space-y-1">
+        <div style={{ 
+          marginTop: '32px', 
+          padding: '16px', 
+          border: '2px dashed #d1d5db', 
+          borderRadius: '8px',
+          color: '#6b7280',
+          fontSize: '14px'
+        }}>
+          <p style={{ fontWeight: '500', marginBottom: '8px' }}>Future Modules (In Development):</p>
+          <ul style={{ listStyle: 'disc', listStylePosition: 'inside', lineHeight: '1.5' }}>
             <li>Albumin-to-Creatinine Ratio (ACR) integration</li>
             <li>Cystatin C-based eGFR calculation</li>
             <li>Combined CKD-EPI cr-cys equation</li>
@@ -379,15 +463,6 @@ const EGFRCalculator = () => {
           </ul>
         </div>
       </div>
-      
-      {/* Print styles */}
-      <style jsx>{`
-        @media print {
-          .no-print {
-            display: none;
-          }
-        }
-      `}</style>
     </div>
   );
 };
@@ -396,7 +471,7 @@ const EGFRCalculator = () => {
 export default function App() {
   return (
     <CalculatorContext.Provider value={{}}>
-      <div className="min-h-screen bg-gray-100 py-8">
+      <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', paddingTop: '32px', paddingBottom: '32px' }}>
         <EGFRCalculator />
       </div>
     </CalculatorContext.Provider>
